@@ -1,0 +1,2 @@
+io.github.comrada.kafka.connect.http.response.KvHttpResponseParser
+io.github.comrada.kafka.connect.http.response.PolicyHttpResponseParser

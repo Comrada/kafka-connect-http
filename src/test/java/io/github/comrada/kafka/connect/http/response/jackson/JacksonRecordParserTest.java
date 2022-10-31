@@ -1,0 +1,132 @@
+package io.github.comrada.kafka.connect.http.response.jackson;
+
+import static com.fasterxml.jackson.core.JsonPointer.compile;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.deserialize;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.jsonK1K2;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.pointerToK1;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.pointerToK2;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.v1;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.v2;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.empty;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class JacksonRecordParserTest {
+
+  JacksonRecordParser parser = new JacksonRecordParser();
+
+  @Mock
+  JacksonRecordParserConfig config;
+
+  @BeforeEach
+  void setUp() {
+    parser = new JacksonRecordParser(__ -> config, new JacksonSerializer());
+  }
+
+  @Test
+  void givenNoPointer_whenGetKey_thenEmpty() {
+
+    given(config.getKeyPointer()).willReturn(emptyList());
+    parser.configure(emptyMap());
+
+    assertThat(parser.getKey(jsonK1K2)).isEmpty();
+  }
+
+  @Test
+  void givenPointer_whenGetKey_thenKeyAsText() {
+
+    given(config.getKeyPointer()).willReturn(singletonList(pointerToK1));
+    parser.configure(emptyMap());
+
+    assertThat(parser.getKey(jsonK1K2)).contains(v1);
+  }
+
+  @Test
+  void givenPointers_whenGetKey_thenKeyAsTextConcatenated() {
+
+    given(config.getKeyPointer()).willReturn(asList(pointerToK1, pointerToK2));
+    parser.configure(emptyMap());
+
+    assertThat(parser.getKey(jsonK1K2)).contains(v1 + "+" + v2);
+  }
+
+  @Test
+  void givenPointer_whenGetValueText_thenValue() {
+
+    given(config.getValuePointer()).willReturn(pointerToK1);
+    parser.configure(emptyMap());
+
+    assertThat(parser.getValue(jsonK1K2)).isEqualTo(v1);
+  }
+
+  @Test
+  void givenPointer_whenGetValueObject_thenValue() {
+
+    given(config.getValuePointer()).willReturn(pointerToK1);
+    parser.configure(emptyMap());
+
+    assertThat(parser.getValue(jsonK1K2)).isEqualTo(v1);
+  }
+
+  @Test
+  void givenNoPointer_whenGetTimestamp_thenEmpty() {
+
+    given(config.getTimestampPointer()).willReturn(empty());
+    parser.configure(emptyMap());
+
+    assertThat(parser.getTimestamp(jsonK1K2)).isEmpty();
+  }
+
+  @Test
+  void givenPointer_whenGetTimestamp_thenTimestampAsText() {
+
+    given(config.getTimestampPointer()).willReturn(Optional.of(pointerToK1));
+    parser.configure(emptyMap());
+
+    assertThat(parser.getTimestamp(jsonK1K2)).contains(v1);
+  }
+
+  @Test
+  void givenPointer_whenGetOffset_thenOffset() {
+
+    given(config.getOffsetPointers()).willReturn(ImmutableMap.of("key", pointerToK1));
+    parser.configure(emptyMap());
+
+    assertThat(parser.getOffset(jsonK1K2)).isEqualTo(ImmutableMap.of("key", v1));
+  }
+
+  interface Fixture {
+
+    ObjectMapper mapper = new ObjectMapper();
+    String k1 = "k1";
+    String v1 = "v1";
+    String k2 = "k2";
+    String v2 = "v2";
+    String item1 = "{\"" + k1 + "\":\"" + v1 + "\",\"" + k2 + "\":\"" + v2 + "\"}";
+    JsonNode jsonK1K2 = deserialize(item1);
+    JsonPointer pointerToK1 = compile("/" + k1);
+    JsonPointer pointerToK2 = compile("/" + k2);
+
+    @SneakyThrows
+    static JsonNode deserialize(String body) {
+      return mapper.readTree(body);
+    }
+  }
+}

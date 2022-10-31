@@ -1,0 +1,133 @@
+package io.github.comrada.kafka.connect.http.response.jackson;
+
+import static com.fasterxml.jackson.core.JsonPointer.compile;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.deserialize;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.item1;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonResponseRecordParserTest.Fixture.item2;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonResponseRecordParserTest.Fixture.itemArray;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonResponseRecordParserTest.Fixture.itemArrayJson;
+import static io.github.comrada.kafka.connect.http.response.jackson.JacksonResponseRecordParserTest.Fixture.pointer;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class JacksonResponseRecordParserTest {
+
+  JacksonResponseRecordParser parser;
+
+  @Mock
+  JacksonRecordParserConfig config;
+
+  @Mock
+  JacksonRecordParser recordParser;
+
+  @Mock
+  JacksonSerializer serializer;
+
+  @BeforeEach
+  void setUp() {
+    parser = new JacksonResponseRecordParser(__ -> config, recordParser, serializer);
+
+    given(recordParser.getKey(deserialize(item1))).willReturn(Optional.of("value"));
+  }
+
+  @Test
+  void givenRecords_whenGetRecords_thenAllReturned() {
+
+    givenRecords(deserialize(item1), deserialize(item2));
+
+    assertThat(parser.getRecords(itemArray.getBytes()).collect(toList())).hasSize(2);
+  }
+
+  @Test
+  void givenRecordWithKey_whenGetRecords_thenItemKeyMapped() {
+
+    givenRecords(deserialize(item1));
+    given(recordParser.getKey(deserialize(item1))).willReturn(Optional.of("value"));
+
+    assertThat(parser.getRecords(itemArray.getBytes()).findFirst().get().getKey()).isEqualTo("value");
+  }
+
+  @Test
+  void givenRecordWithoutKey_whenGetRecords_thenItemKeyNull() {
+
+    givenRecords(deserialize(item1));
+    given(recordParser.getKey(deserialize(item1))).willReturn(Optional.empty());
+
+    assertThat(parser.getRecords(itemArray.getBytes()).findFirst().get().getKey()).isNull();
+  }
+
+  @Test
+  void givenRecordWithTimestamp_whenGetRecords_thenItemTimestampMapped() {
+
+    givenRecords(deserialize(item1));
+    given(recordParser.getTimestamp(deserialize(item1))).willReturn(Optional.of("value"));
+
+    assertThat(parser.getRecords(itemArray.getBytes()).findFirst().get().getTimestamp()).isEqualTo("value");
+  }
+
+  @Test
+  void givenRecordWithoutTimestamp_whenGetRecords_thenItemTimestampNull() {
+
+    givenRecords(deserialize(item1));
+    given(recordParser.getTimestamp(deserialize(item1))).willReturn(Optional.empty());
+
+    assertThat(parser.getRecords(itemArray.getBytes()).findFirst().get().getTimestamp()).isNull();
+  }
+
+  @Test
+  void givenRecordWithOffset_whenGetRecords_thenItemOffsetMapped() {
+
+    givenRecords(deserialize(item1));
+    given(recordParser.getOffset(deserialize(item1))).willReturn(ImmutableMap.of("k", "v"));
+
+    assertThat(parser.getRecords(itemArray.getBytes()).findFirst().get().getOffset()).isEqualTo(ImmutableMap.of("k", "v"));
+  }
+
+  @Test
+  void givenRecordWithValue_whenGetRecords_thenItemBodyMapped() {
+
+    givenRecords(deserialize(item1));
+    given(recordParser.getValue(deserialize(item1))).willReturn("value");
+
+    assertThat(parser.getRecords(itemArray.getBytes()).findFirst().get().getBody()).isEqualTo("value");
+  }
+
+  private void givenRecords(JsonNode... records) {
+    given(config.getRecordsPointer()).willReturn(pointer);
+    given(serializer.deserialize(itemArray.getBytes())).willReturn(itemArrayJson);
+    given(serializer.getArrayAt(itemArrayJson, pointer)).willReturn(Stream.of(records));
+    parser.configure(emptyMap());
+  }
+
+  interface Fixture {
+
+    ObjectMapper mapper = new ObjectMapper();
+    String property = "v1";
+    String item1 = "{\"k1\":\"" + property + "\"}";
+    String item2 = "{\"k2\":\"v2\"}";
+    String itemArray = "{\"items\":[" + item1 + "," + item2 + "]}";
+    JsonNode itemArrayJson = deserialize(itemArray);
+    JsonPointer pointer = compile("/items");
+
+    @SneakyThrows
+    static JsonNode deserialize(String body) {
+      return mapper.readTree(body);
+    }
+  }
+}
