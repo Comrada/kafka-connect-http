@@ -75,6 +75,6 @@ public class JacksonRecordParser implements Configurable {
 
   String getValue(JsonNode node) {
     JsonNode value = serializer.getObjectAt(node, valuePointer);
-    return value.isObject() ? serializer.serialize(value) : value.asText();
+    return value.isObject() || value.isArray() ? serializer.serialize(value) : value.asText();
   }
 }

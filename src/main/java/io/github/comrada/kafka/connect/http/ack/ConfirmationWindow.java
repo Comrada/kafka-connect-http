@@ -1,8 +1,8 @@
 package io.github.comrada.kafka.connect.http.ack;
 
+import static io.github.comrada.kafka.connect.common.CollectionUtils.toLinkedHashMap;
 import static java.util.function.Function.identity;
 
-import io.github.comrada.kafka.connect.common.CollectionUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class ConfirmationWindow<T> {
   private final LinkedHashMap<T, Boolean> confirmedOffsets;
 
   public ConfirmationWindow(List<T> offsets) {
-    confirmedOffsets = offsets.stream().collect(CollectionUtils.toLinkedHashMap(identity(), __ -> false));
+    confirmedOffsets = offsets.stream().collect(toLinkedHashMap(identity(), __ -> false));
   }
 
   public void confirm(T offset) {

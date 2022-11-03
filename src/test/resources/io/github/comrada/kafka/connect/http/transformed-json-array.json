@@ -1,0 +1,30 @@
+[
+  {
+    "openAt": 1667257200000,
+    "open": "0.46240000",
+    "high": "0.46740000",
+    "low": "0.46070000",
+    "close": "0.46410000",
+    "volume": "28051685.00000000",
+    "closedAt": 1667260799999,
+    "quoteAssetVolume": "13048670.75260000",
+    "numberOfTrades": 13362,
+    "takerBuyBaseAssetVolume": "15114732.00000000",
+    "takerBuyQuoteAssetVolume": "7031036.24040000",
+    "reserved": "0"
+  },
+  {
+    "openAt": 1667260800000,
+    "open": "0.46400000",
+    "high": "0.46430000",
+    "low": "0.45950000",
+    "close": "0.46040000",
+    "volume": "25941640.00000000",
+    "closedAt": 1667264399999,
+    "quoteAssetVolume": "11974613.32000000",
+    "numberOfTrades": 15153,
+    "takerBuyBaseAssetVolume": "15523923.00000000",
+    "takerBuyQuoteAssetVolume": "7166403.96830000",
+    "reserved": "0"
+  }
+]
