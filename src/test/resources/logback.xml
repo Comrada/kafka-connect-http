@@ -1,4 +1,6 @@
 <configuration>
+    <appender name="LOGS_COLLECTOR" class="io.github.comrada.kafka.connect.LogsCollector" />
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{HH:mm:ss.SSS} [%-16thread] %-5level %msg%n</pattern>
@@ -6,6 +8,7 @@
     </appender>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="LOGS_COLLECTOR"/>
     </root>
     <logger name="io.github.comrada.kafka.connect.http.HttpSourceTaskConfig" level="WARN"/>
     <logger name="io.github.comrada.kafka.connect.HttpSourceConnectorConfig" level="WARN"/>

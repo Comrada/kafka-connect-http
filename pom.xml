@@ -16,7 +16,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jackson.version>2.14.0-rc2</jackson.version>
+    <jackson.version>2.14.0</jackson.version>
     <slf4j.version>2.0.3</slf4j.version>
     <logback.version>1.4.4</logback.version>
     <lombok.version>1.18.24</lombok.version>
@@ -132,7 +132,7 @@
     <!-- Tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
+      <artifactId>junit-jupiter</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>

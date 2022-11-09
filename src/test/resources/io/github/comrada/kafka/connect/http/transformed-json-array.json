@@ -1,30 +1,28 @@
 [
   {
     "openAt": 1667257200000,
-    "open": "0.46240000",
-    "high": "0.46740000",
-    "low": "0.46070000",
-    "close": "0.46410000",
-    "volume": "28051685.00000000",
+    "open": 0.4624,
+    "high": 0.4674,
+    "low": 0.4607,
+    "close": 0.4641,
+    "volume": 28051685,
     "closedAt": 1667260799999,
-    "quoteAssetVolume": "13048670.75260000",
+    "quoteAssetVolume": 13048670.7526,
     "numberOfTrades": 13362,
-    "takerBuyBaseAssetVolume": "15114732.00000000",
-    "takerBuyQuoteAssetVolume": "7031036.24040000",
-    "reserved": "0"
+    "takerBuyBaseAssetVolume": 15114732,
+    "takerBuyQuoteAssetVolume": 7031036.2404
   },
   {
     "openAt": 1667260800000,
-    "open": "0.46400000",
-    "high": "0.46430000",
-    "low": "0.45950000",
-    "close": "0.46040000",
-    "volume": "25941640.00000000",
+    "open": 0.464,
+    "high": 0.4643,
+    "low": 0.4595,
+    "close": 0.4604,
+    "volume": 25941640,
     "closedAt": 1667264399999,
-    "quoteAssetVolume": "11974613.32000000",
+    "quoteAssetVolume": 11974613.32,
     "numberOfTrades": 15153,
-    "takerBuyBaseAssetVolume": "15523923.00000000",
-    "takerBuyQuoteAssetVolume": "7166403.96830000",
-    "reserved": "0"
+    "takerBuyBaseAssetVolume": 15523923,
+    "takerBuyQuoteAssetVolume": 7166403.9683
   }
 ]
