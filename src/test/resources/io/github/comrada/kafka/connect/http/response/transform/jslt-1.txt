@@ -1,0 +1,6 @@
+[for(.symbols) {
+"symbol": .symbol,
+"status": .status,
+"baseAsset": .baseAsset,
+"quoteAsset": .quoteAsset
+} if(.status == "TRADING" and .quoteAsset == "ETH")]

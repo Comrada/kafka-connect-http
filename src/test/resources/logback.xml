@@ -29,5 +29,6 @@
     <logger name="io.github.comrada.kafka.connect.http.record.SourceRecordMapperConfig" level="WARN"/>
     <logger name="io.github.comrada.kafka.connect.timer.FixedIntervalTimerConfig" level="WARN"/>
     <logger name="io.github.comrada.kafka.connect.timer.AdaptableIntervalTimerConfig" level="WARN"/>
+    <logger name="io.github.comrada.kafka.connect.http.response.transform.JsltBodyTransformer" level="DEBUG"/>
     <logger name="com.joestelmach.natty" level="WARN"/>
 </configuration>

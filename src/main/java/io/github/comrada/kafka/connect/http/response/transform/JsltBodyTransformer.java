@@ -2,6 +2,7 @@ package io.github.comrada.kafka.connect.http.response.transform;
 
 import static java.util.Objects.requireNonNull;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schibsted.spt.data.jslt.Expression;
@@ -108,14 +109,18 @@ public class JsltBodyTransformer implements HttpResponseTransformer {
   public HttpResponse transform(HttpResponse response) {
     checkContentType(response);
     Charset originCharset = HeaderUtils.getCharset(response);
-    JsonNode originalJsonNode = OBJECT_MAPPER.readTree(new String(response.getBody(), originCharset));
-    JsonNode transformedJsonNode = expression.apply(originalJsonNode);
-    String transformed = OBJECT_MAPPER.writeValueAsString(transformedJsonNode);
+    String transformed = doTransform(response, originCharset);
     return HttpResponse.builder()
         .body(transformed.getBytes(originCharset))
         .code(response.getCode())
         .headers(response.getHeaders())
         .build();
+  }
+
+  private String doTransform(HttpResponse response, Charset originCharset) throws JsonProcessingException {
+    JsonNode originalJsonNode = OBJECT_MAPPER.readTree(new String(response.getBody(), originCharset));
+    JsonNode transformedJsonNode = expression.apply(originalJsonNode);
+    return OBJECT_MAPPER.writeValueAsString(transformedJsonNode);
   }
 
   private void checkContentType(HttpResponse response) {
@@ -130,6 +135,4 @@ public class JsltBodyTransformer implements HttpResponseTransformer {
       log.debug("Server response does not contain a content type header, assuming it's JSON.");
     }
   }
-
-
 }
