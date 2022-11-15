@@ -1,5 +1,7 @@
 package io.github.comrada.kafka.connect.http;
 
+import static io.github.comrada.kafka.connect.TestUtils.loadResourceFile;
+import static io.github.comrada.kafka.connect.TestUtils.mockTaskContext;
 import static io.github.comrada.kafka.connect.http.HttpSourceTaskTest.Fixture.offset;
 import static io.github.comrada.kafka.connect.http.HttpSourceTaskTest.Fixture.offsetInitialMap;
 import static io.github.comrada.kafka.connect.http.HttpSourceTaskTest.Fixture.offsetMap;
@@ -10,6 +12,7 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,6 +22,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import io.github.comrada.kafka.connect.TestUtils;
 import io.github.comrada.kafka.connect.http.client.spi.HttpClient;
 import io.github.comrada.kafka.connect.http.model.HttpRequest;
 import io.github.comrada.kafka.connect.http.model.HttpResponse;
@@ -27,10 +32,16 @@ import io.github.comrada.kafka.connect.http.record.spi.SourceRecordFilterFactory
 import io.github.comrada.kafka.connect.http.record.spi.SourceRecordSorter;
 import io.github.comrada.kafka.connect.http.request.spi.HttpRequestFactory;
 import io.github.comrada.kafka.connect.http.response.spi.HttpResponseParser;
+import io.github.comrada.kafka.connect.http.response.transform.spi.HttpResponseTransformer;
 import io.github.comrada.kafka.connect.timer.TimerThrottler;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.kafka.connect.errors.RetriableException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTaskContext;
@@ -40,6 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 @ExtendWith(MockitoExtension.class)
 class HttpSourceTaskTest {
@@ -62,6 +74,9 @@ class HttpSourceTaskTest {
   HttpResponseParser responseParser;
 
   @Mock
+  HttpResponseTransformer responseTransformer;
+
+  @Mock
   SourceRecordSorter recordSorter;
 
   @Mock
@@ -77,6 +92,7 @@ class HttpSourceTaskTest {
     given(config.getRequestFactory()).willReturn(requestFactory);
     given(config.getClient()).willReturn(client);
     given(config.getResponseParser()).willReturn(responseParser);
+    given(config.getResponseTransformer()).willReturn(responseTransformer);
     given(config.getRecordSorter()).willReturn(recordSorter);
     given(config.getRecordFilterFactory()).willReturn(recordFilterFactory);
   }
@@ -167,6 +183,7 @@ class HttpSourceTaskTest {
     given(requestFactory.createRequest(offset)).willReturn(request);
     given(client.execute(request)).willReturn(response);
     given(responseParser.parse(response)).willReturn(singletonList(record(offsetMap)));
+    given(responseTransformer.transform(response)).willReturn(response);
     given(recordFilterFactory.create(offset)).willReturn(__ -> true);
 
     task.poll();
@@ -182,6 +199,7 @@ class HttpSourceTaskTest {
     given(requestFactory.createRequest(offset)).willReturn(request);
     given(client.execute(request)).willReturn(response);
     given(responseParser.parse(response)).willReturn(singletonList(record(offsetMap)));
+    given(responseTransformer.transform(response)).willReturn(response);
     given(recordSorter.sort(singletonList(record(offsetMap)))).willReturn(singletonList(record(offsetMap)));
     given(recordFilterFactory.create(offset)).willReturn(__ -> true);
 
@@ -196,6 +214,7 @@ class HttpSourceTaskTest {
     given(requestFactory.createRequest(offset)).willReturn(request);
     given(client.execute(request)).willReturn(response);
     given(responseParser.parse(response)).willReturn(singletonList(record(offsetMap)));
+    given(responseTransformer.transform(response)).willReturn(response);
     given(recordSorter.sort(singletonList(record(offsetMap)))).willReturn(
         asList(record(offsetMap(1)), record(offsetMap(2))));
     given(recordFilterFactory.create(offset)).willReturn(__ -> true);
@@ -211,6 +230,7 @@ class HttpSourceTaskTest {
     given(requestFactory.createRequest(offset)).willReturn(request);
     given(client.execute(request)).willReturn(response);
     given(responseParser.parse(response)).willReturn(singletonList(record(offsetMap)));
+    given(responseTransformer.transform(response)).willReturn(response);
     given(recordFilterFactory.create(offset)).willReturn(__ -> false);
 
     assertThat(task.poll()).isEmpty();
@@ -224,6 +244,7 @@ class HttpSourceTaskTest {
     given(requestFactory.createRequest(offset)).willReturn(request);
     given(client.execute(request)).willReturn(response);
     given(responseParser.parse(response)).willReturn(singletonList(record(offsetMap)));
+    given(responseTransformer.transform(response)).willReturn(response);
     given(recordSorter.sort(singletonList(record(offsetMap))))
         .willReturn(asList(record(offsetMap(1)), record(offsetMap(2)), record(offsetMap(3))));
     given(recordFilterFactory.create(offset)).willReturn(__ -> true);
@@ -258,6 +279,30 @@ class HttpSourceTaskTest {
     task.stop();
 
     verifyNoInteractions(throttler, requestFactory, responseParser, recordFilterFactory);
+  }
+
+  @Test
+  void whenServerReturnsMixedJsonArray_thenItIsTransformed() throws Exception {
+    Properties props = new Properties();
+    props.load(getClass().getResourceAsStream("connector-with-jslt-transformation.properties"));
+    Map<String, String> properties = new HashMap<>(Maps.fromProperties(props));
+    String mixedArray = loadResourceFile(getClass(), "mixed-json-array.json");
+    String expectedTransformedArray = loadResourceFile(getClass(), "transformed-json-array.json");
+    HttpSourceTask testTask = new HttpSourceTask(__ -> new HttpSourceConnectorConfig(properties));
+    mockTaskContext(testTask);
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setBody(mixedArray).setHeader("content-type", "application/json;charset=UTF-8"));
+      server.start();
+      properties.put("http.request.url", server.url("").toString());
+      testTask.start(properties);
+      List<SourceRecord> sourceRecords = testTask.poll();
+      String actual = sourceRecords.stream()
+          .map(TestUtils::extractStringValue)
+          .collect(joining(",", "[", "]"));
+
+      assertThat(sourceRecords).hasSize(2);
+      JSONAssert.assertEquals(expectedTransformedArray, actual, true);
+    }
   }
 
   interface Fixture {

@@ -78,7 +78,7 @@ public class OkHttpClient implements HttpClient {
         .orElse(request);
   }
 
-  private static HttpLoggingInterceptor createLoggingInterceptor() {
+  private HttpLoggingInterceptor createLoggingInterceptor() {
     if (log.isTraceEnabled()) {
       return new HttpLoggingInterceptor(log::trace).setLevel(BODY);
     } else if (log.isDebugEnabled()) {
@@ -88,19 +88,18 @@ public class OkHttpClient implements HttpClient {
     }
   }
 
-  private static Proxy resolveProxy(String host, Integer port) {
+  private Proxy resolveProxy(String host, Integer port) {
     return isEmpty(host) ? NO_PROXY : new Proxy(HTTP, new InetSocketAddress(host, port));
   }
 
-  private static Authenticator resolveProxyAuthenticator(String username, String password) {
+  private Authenticator resolveProxyAuthenticator(String username, String password) {
     return isEmpty(username) ? Authenticator.NONE :
         (route, response) -> response.request().newBuilder()
             .header("Proxy-Authorization", basic(username, password))
             .build();
   }
 
-  private static void resolveSslSocketFactory(okhttp3.OkHttpClient.Builder builder, String keyStorePath,
-      String keyStorePassword) {
+  private void resolveSslSocketFactory(okhttp3.OkHttpClient.Builder builder, String keyStorePath, String keyStorePassword) {
     if (keyStorePath.isEmpty()) {
       return;
     }

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.github.comrada</groupId>
   <artifactId>kafka-connect-http</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <name>Kafka Connect Source HTTP</name>
   <description>Kafka Connect connector that enables Change Data Capture from JSON/HTTP APIs into Kafka.</description>
   <url>https://comrada.github.io/kafka-connect-http</url>
@@ -16,20 +15,22 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jackson.version>2.14.0-rc2</jackson.version>
+    <jackson.version>2.14.0</jackson.version>
     <slf4j.version>2.0.3</slf4j.version>
     <logback.version>1.4.4</logback.version>
     <lombok.version>1.18.24</lombok.version>
     <kafka.version>3.3.1</kafka.version>
-    <okhttp.version>4.10.0</okhttp.version>
+    <okhttp.version>5.0.0-alpha.10</okhttp.version>
     <freemarker.version>2.3.31</freemarker.version>
     <natty.version>0.13</natty.version>
     <commons-lang.version>2.6</commons-lang.version>
     <commons-codec.version>1.15</commons-codec.version>
+    <jslt.version>0.1.13</jslt.version>
     <guava.version>31.1-jre</guava.version>
     <assertj.version>3.23.1</assertj.version>
     <junit.version>5.9.1</junit.version>
     <mockito.version>4.8.1</mockito.version>
+    <jsonassert.version>1.5.1</jsonassert.version>
   </properties>
 
   <developers>
@@ -60,7 +61,7 @@
   <scm>
     <url>https://github.com/comrada/kafka-connect-http</url>
     <connection>scm:git:https://github.com/comrada/kafka-connect-http.git</connection>
-    <tag>v1.0</tag>
+    <tag>v1.1</tag>
   </scm>
 
   <dependencies>
@@ -121,11 +122,16 @@
       <artifactId>commons-lang</artifactId>
       <version>${commons-lang.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.schibsted.spt.data</groupId>
+      <artifactId>jslt</artifactId>
+      <version>${jslt.version}</version>
+    </dependency>
 
     <!-- Tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
+      <artifactId>junit-jupiter</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
@@ -145,6 +151,18 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>${okhttp.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.skyscreamer</groupId>
+      <artifactId>jsonassert</artifactId>
+      <version>${jsonassert.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

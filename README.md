@@ -521,6 +521,42 @@ Assumptions:
 *   There won't be new items preceding already seen ones 
 
 ---
+<a name="transformer"></a>
+
+### `HttpResponseTransformer`: Transforming a `HttpResponse`
+Once our `HttpRequest` has been executed, as a result we'll have to deal with a `HttpResponse`, we can immediately do some
+kind of transformation with it. This will happen before the `HttpResponseParser` starts its work.
+This may be useful in various cases, e.g. to correct JSON into more usable form, to cast types of fields, or to select
+certain number of fields from complex data structure.
+As the transformer receives the full `HttpResponse` object, it can also modify server headers and HTTP status code.
+
+> #### `http.response.transformer`
+> ```java
+> public interface HttpResponseTransformer extends Configurable {
+> 
+>     HttpResponse transform(HttpResponse response);
+> }
+> ```
+> *   Type: `Class`
+> *   Default: `io.github.comrada.kafka.connect.http.response.transform.NoneTransformer`
+> *   Available implementations:
+> *   `io.github.comrada.kafka.connect.http.response.transform.JsltBodyTransformer`
+
+#### Transforming with `JsltBodyTransformer`
+Transformer first checks the server response for `application/json` content type and if it is different, it fails.
+Transformer allows you to flexibly convert JSON from one form to another. You can learn examples of the syntax in the
+official [documentation](https://github.com/schibsted/jslt/blob/master/tutorial.md).
+
+> ##### `http.response.transform.jslt`
+> *   Example: `[for(.symbols) {"symbol": .symbol,"status": .status,"baseAsset": .baseAsset,"quoteAsset": .quoteAsset} if(.status == "TRADING" and .quoteAsset == "USDT")]`
+> *   Type: `String`
+> *   Default: `"."`
+>
+> ##### `http.auth.password`
+> *   Type: `String`
+> *   Default: `"""`
+
+---
 ## Development
 
 ### Building
@@ -542,10 +578,6 @@ mvn release:clean release:prepare
 
 Contributions are welcome via pull requests, pending definition of code of conduct, please just follow existing conventions.
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. 
-
 ## License
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE.txt](LICENSE.txt) file for details
@@ -558,6 +590,7 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE.txt](LI
 *   [Jackson](https://github.com/FasterXML/jackson) - Json deserialization
 *   [FreeMarker](https://freemarker.apache.org/) - Template engine
 *   [Natty](http://natty.joestelmach.com/) - Date parser
+*   [JSLT](https://github.com/schibsted/jslt/) - JSLT is a complete query and transformation language for JSON
 
 ## Acknowledgments
 

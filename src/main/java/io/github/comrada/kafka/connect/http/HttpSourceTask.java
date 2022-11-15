@@ -15,6 +15,7 @@ import io.github.comrada.kafka.connect.http.record.spi.SourceRecordFilterFactory
 import io.github.comrada.kafka.connect.http.record.spi.SourceRecordSorter;
 import io.github.comrada.kafka.connect.http.request.spi.HttpRequestFactory;
 import io.github.comrada.kafka.connect.http.response.spi.HttpResponseParser;
+import io.github.comrada.kafka.connect.http.response.transform.spi.HttpResponseTransformer;
 import io.github.comrada.kafka.connect.timer.TimerThrottler;
 import java.io.IOException;
 import java.time.Instant;
@@ -38,11 +39,12 @@ public class HttpSourceTask extends SourceTask {
   protected HttpRequestFactory requestFactory;
   protected HttpClient requestExecutor;
   protected HttpResponseParser responseParser;
+  protected HttpResponseTransformer responseTransformer;
   protected SourceRecordSorter recordSorter;
   protected SourceRecordFilterFactory recordFilterFactory;
   protected ConfirmationWindow<Map<String, ?>> confirmationWindow = new ConfirmationWindow<>(emptyList());
   @Getter
-  private Offset offset;
+  protected Offset offset;
 
   HttpSourceTask(Function<Map<String, String>, HttpSourceConnectorConfig> configFactory) {
     this.configFactory = requireNonNull(configFactory);
@@ -59,6 +61,7 @@ public class HttpSourceTask extends SourceTask {
     requestFactory = config.getRequestFactory();
     requestExecutor = config.getClient();
     responseParser = config.getResponseParser();
+    responseTransformer = config.getResponseTransformer();
     recordSorter = config.getRecordSorter();
     recordFilterFactory = config.getRecordFilterFactory();
     offset = loadOffset(config.getInitialOffset());
@@ -86,7 +89,8 @@ public class HttpSourceTask extends SourceTask {
 
   protected HttpResponse execute(HttpRequest request) {
     try {
-      return requestExecutor.execute(request);
+      HttpResponse response = requestExecutor.execute(request);
+      return responseTransformer.transform(response);
     } catch (IOException e) {
       throw new RetriableException(e);
     }
