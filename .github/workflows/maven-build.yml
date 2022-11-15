@@ -21,7 +21,7 @@ jobs:
           distribution: 'adopt'
           cache: maven
       - name: Build with Maven
-        run: mvn --batch-mode -update-snapshots package -P package
+        run: mvn --batch-mode --no-transfer-progress --update-snapshots package -P package
 
       - name: Prepare artifacts
         run: mkdir staging && cp target/*.jar staging && cp target/*.tar.gz staging
