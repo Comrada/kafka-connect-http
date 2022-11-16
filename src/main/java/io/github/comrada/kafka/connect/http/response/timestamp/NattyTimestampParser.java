@@ -6,7 +6,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 
 import io.github.comrada.kafka.connect.http.response.timestamp.spi.TimestampParser;
-import com.joestelmach.natty.Parser;
+import org.natty.Parser;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;

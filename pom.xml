@@ -22,7 +22,7 @@
     <kafka.version>3.3.1</kafka.version>
     <okhttp.version>5.0.0-alpha.10</okhttp.version>
     <freemarker.version>2.3.31</freemarker.version>
-    <natty.version>0.13</natty.version>
+    <natty.version>1.0.1</natty.version>
     <commons-lang.version>2.6</commons-lang.version>
     <commons-codec.version>1.15</commons-codec.version>
     <jslt.version>0.1.13</jslt.version>
@@ -108,7 +108,7 @@
       <version>${freemarker.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.joestelmach</groupId>
+      <groupId>io.github.natty-parser</groupId>
       <artifactId>natty</artifactId>
       <version>${natty.version}</version>
     </dependency>

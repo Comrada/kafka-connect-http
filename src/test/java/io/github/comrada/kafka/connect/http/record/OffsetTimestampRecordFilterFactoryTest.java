@@ -3,9 +3,9 @@ package io.github.comrada.kafka.connect.http.record;
 import static io.github.comrada.kafka.connect.http.record.OffsetTimestampRecordFilterFactoryTest.Fixture.key;
 import static io.github.comrada.kafka.connect.http.record.OffsetTimestampRecordFilterFactoryTest.Fixture.now;
 import static io.github.comrada.kafka.connect.http.record.OffsetTimestampRecordFilterFactoryTest.Fixture.record;
-import static edu.emory.mathcs.backport.java.util.Collections.emptyMap;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.comrada.kafka.connect.http.model.Offset;

@@ -6,7 +6,7 @@ import static org.apache.kafka.common.config.ConfigDef.Importance.MEDIUM;
 import static org.apache.kafka.common.config.ConfigDef.Type.CLASS;
 import static org.apache.kafka.common.config.ConfigDef.Type.STRING;
 
-import io.github.comrada.kafka.connect.http.request.template.freemarker.BackwardsCompatibleFreeMarkerTemplateFactory;
+import io.github.comrada.kafka.connect.http.request.template.freemarker.FreeMarkerTemplateFactory;
 import io.github.comrada.kafka.connect.http.request.template.spi.TemplateFactory;
 import java.util.Map;
 import lombok.Getter;
@@ -47,6 +47,6 @@ public class TemplateHttpRequestFactoryConfig extends AbstractConfig {
         .define(HEADERS, STRING, "", MEDIUM, "HTTP Headers Template")
         .define(QUERY_PARAMS, STRING, "", MEDIUM, "HTTP Query Params Template")
         .define(BODY, STRING, "", LOW, "HTTP Body Template")
-        .define(TEMPLATE_FACTORY, CLASS, BackwardsCompatibleFreeMarkerTemplateFactory.class, LOW, "Template Factory Class");
+        .define(TEMPLATE_FACTORY, CLASS, FreeMarkerTemplateFactory.class, LOW, "Template Factory Class");
   }
 }

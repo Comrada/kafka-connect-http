@@ -7,7 +7,7 @@ import static io.github.comrada.kafka.connect.http.request.template.TemplateHttp
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import io.github.comrada.kafka.connect.http.request.template.freemarker.BackwardsCompatibleFreeMarkerTemplateFactory;
+import io.github.comrada.kafka.connect.http.request.template.freemarker.FreeMarkerTemplateFactory;
 import io.github.comrada.kafka.connect.http.request.template.spi.Template;
 import io.github.comrada.kafka.connect.http.request.template.spi.TemplateFactory;
 import java.util.HashMap;
@@ -70,7 +70,7 @@ class TemplateHttpRequestFactoryConfigTest {
   @Test
   void whenMissingTemplateFactory_thenDefault() {
     assertThat(configWithout("http.request.template.factory").getTemplateFactory()).isInstanceOf(
-        BackwardsCompatibleFreeMarkerTemplateFactory.class);
+        FreeMarkerTemplateFactory.class);
   }
 
   @Test
