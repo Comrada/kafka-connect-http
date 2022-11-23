@@ -1,8 +1,4 @@
-# Kafka Connect HTTP Connector
-
-> #### `Disclaimer`
-> It is a fork of the [castorm/kafka-connect-http](https://github.com/castorm/kafka-connect-http/) project, designed to
-> improve its latest implementation and continue support as support for the original project is virtually nonexistent.
+# Kafka Connect HTTP Source Connector
 
 ## This connector is for you if
 *   You want to (live) replicate a dataset exposed through JSON/HTTP API
@@ -551,10 +547,6 @@ official [documentation](https://github.com/schibsted/jslt/blob/master/tutorial.
 > *   Example: `[for(.symbols) {"symbol": .symbol,"status": .status,"baseAsset": .baseAsset,"quoteAsset": .quoteAsset} if(.status == "TRADING" and .quoteAsset == "USDT")]`
 > *   Type: `String`
 > *   Default: `"."`
->
-> ##### `http.auth.password`
-> *   Type: `String`
-> *   Default: `"""`
 
 ---
 ## Development
